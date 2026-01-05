@@ -1,4 +1,5 @@
 import argparse
+import os
 import time
 import traci
 from fuzzy_controller import FuzzyExtender
@@ -9,10 +10,6 @@ TLS_ID = "C"
 DET_NS = "detNS"
 DET_WE = "detWE"
 
-# Incoming lane ID (z tvojho inspect_ids.py)
-LANE_NS = "N2C_0"
-LANE_WE = "W2C_0"
-
 # Stabilnejšie parametre
 MIN_GREEN = 12
 MAX_GREEN = 90
@@ -21,7 +18,7 @@ MAX_GREEN = 90
 DECIDE_WHEN_REMAINING_LE = 5.0
 MAX_EXT = 10
 
-# Guardy pre extend (podľa CELÉHO pruhu – nie len stop-line detektora)
+# Guardy pre extend (podľa stop-line detektora)
 MIN_SERVED_LANE_VEH_FOR_EXT = 5      # odporúčam 3–8; pri d5 daj skôr 5
 MAX_OTHER_LANE_HALT_FOR_EXT = 12     # keď druhý smer masívne stojí, nepredlžuj
 
@@ -46,6 +43,7 @@ def main():
 
     sumo_bin = "sumo-gui" if args.gui else "sumo"
     tripinfo = args.tripinfo or f"results/fuzzy_seed{args.seed}_tripinfo.xml"
+    os.makedirs(os.path.dirname(tripinfo), exist_ok=True)
 
     traci.start([
         sumo_bin,
@@ -110,24 +108,15 @@ def main():
                 f"Skontroluj mini_additional.add.xml a ID detektorov. Detail: {e}"
             )
 
-        # --- CELÝ pruh (lane) ---
-        # Toto je "tlak" na priblížení: vhodné na EXTEND rozhodovanie
-        lane_veh_ns = traci.lane.getLastStepVehicleNumber(LANE_NS)
-        lane_veh_we = traci.lane.getLastStepVehicleNumber(LANE_WE)
-        lane_halt_ns = traci.lane.getLastStepHaltingNumber(LANE_NS)
-        lane_halt_we = traci.lane.getLastStepHaltingNumber(LANE_WE)
-
         # served/other podľa fázy
         if phase == 0:  # NS green
             served = "NS"
             det_veh_s, det_veh_o = det_veh_ns, det_veh_we
-            lane_veh_s, lane_veh_o = lane_veh_ns, lane_veh_we
-            lane_halt_s, lane_halt_o = lane_halt_ns, lane_halt_we
+            det_halt_s, det_halt_o = det_halt_ns, det_halt_we
         elif phase == 2:  # WE green
             served = "WE"
             det_veh_s, det_veh_o = det_veh_we, det_veh_ns
-            lane_veh_s, lane_veh_o = lane_veh_we, lane_veh_ns
-            lane_halt_s, lane_halt_o = lane_halt_we, lane_halt_ns
+            det_halt_s, det_halt_o = det_halt_we, det_halt_ns
         else:
             continue
 
@@ -140,14 +129,14 @@ def main():
 
         if (
             empty_streak >= GAP_OUT_SECS
-            and lane_halt_o >= MIN_OTHER_LANE_HALT_FOR_CUT
+            and det_halt_o >= MIN_OTHER_LANE_HALT_FOR_CUT
             and remaining > CUT_TO_REMAINING
         ):
             traci.trafficlight.setPhaseDuration(TLS_ID, CUT_TO_REMAINING)
             cut_count += 1
             print(
                 f"CUT   t={t:.0f}s phase={phase} served={served} "
-                f"detVehS={det_veh_s} laneHaltO={lane_halt_o} -> remain={CUT_TO_REMAINING}"
+                f"detVehS={det_veh_s} detHaltO={det_halt_o} -> remain={CUT_TO_REMAINING}"
             )
             continue
 
@@ -162,23 +151,23 @@ def main():
         if args.debug:
             print(
                 f"DECIDE t={t:.0f}s phase={phase} served={served} remaining={remaining:.1f} "
-                f"laneVehS={lane_veh_s} laneVehO={lane_veh_o} laneHaltO={lane_halt_o} detVehS={det_veh_s}"
+                f"detVehS={det_veh_s} detVehO={det_veh_o} detHaltO={det_halt_o}"
             )
 
         # guardy – ak na served pruhu nie je tlak, nepredlžuj
-        if lane_veh_s < MIN_SERVED_LANE_VEH_FOR_EXT:
+        if det_veh_s < MIN_SERVED_LANE_VEH_FOR_EXT:
             if args.debug:
-                print(f"  SKIP: lane_veh_s({lane_veh_s}) < MIN_SERVED_LANE_VEH_FOR_EXT({MIN_SERVED_LANE_VEH_FOR_EXT})")
+                print(f"  SKIP: det_veh_s({det_veh_s}) < MIN_SERVED_LANE_VEH_FOR_EXT({MIN_SERVED_LANE_VEH_FOR_EXT})")
             continue
 
         # ak druhý smer už výrazne stojí, nepredlžuj
-        if lane_halt_o > MAX_OTHER_LANE_HALT_FOR_EXT:
+        if det_halt_o > MAX_OTHER_LANE_HALT_FOR_EXT:
             if args.debug:
-                print(f"  SKIP: lane_halt_o({lane_halt_o}) > MAX_OTHER_LANE_HALT_FOR_EXT({MAX_OTHER_LANE_HALT_FOR_EXT})")
+                print(f"  SKIP: det_halt_o({det_halt_o}) > MAX_OTHER_LANE_HALT_FOR_EXT({MAX_OTHER_LANE_HALT_FOR_EXT})")
             continue
 
-        # fuzzy rozhodnutie (použi lane_veh_*)
-        ext_raw = ctrl.decide(q_served=int(lane_veh_s), q_other=int(lane_veh_o))
+        # fuzzy rozhodnutie (použi detektor)
+        ext_raw = ctrl.decide(q_served=int(det_veh_s), q_other=int(det_veh_o))
         try:
             ext = int(round(ext_raw))
         except Exception:
@@ -192,7 +181,7 @@ def main():
             extend_count += 1
             print(
                 f"EXTEND t={t:.0f}s phase={phase} served={served} +{ext}s "
-                f"laneVehS={lane_veh_s} laneVehO={lane_veh_o} laneHaltO={lane_halt_o}"
+                f"detVehS={det_veh_s} detVehO={det_veh_o} detHaltO={det_halt_o}"
             )
         else:
             if args.debug:

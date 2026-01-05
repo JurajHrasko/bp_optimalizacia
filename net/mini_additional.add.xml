@@ -3,8 +3,8 @@
     <laneAreaDetector
         id="detNS"
         lane="N2C_0"
-        pos="-50"
-        length="50"
+        pos="-5"
+        length="5"
         freq="1"
         file="results/detNS.xml"/>
 
@@ -12,8 +12,8 @@
     <laneAreaDetector
         id="detWE"
         lane="W2C_0"
-        pos="-50"
-        length="50"
+        pos="-5"
+        length="5"
         freq="1"
         file="results/detWE.xml"/>
 </additional>
