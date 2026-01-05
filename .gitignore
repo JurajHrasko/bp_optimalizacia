@@ -17,6 +17,7 @@ Thumbs.db
 /results/
 *.tripinfo.xml
 *_tripinfo.xml
+net/results/
 
 # SUMO intermediate files (optional)
 *_summary.xml

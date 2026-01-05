@@ -1,8 +1,8 @@
 import argparse
+import importlib.util
 import os
+import sys
 import time
-import traci
-from fuzzy_controller import FuzzyExtender
 
 TLS_ID = "C"
 
@@ -29,6 +29,19 @@ CUT_TO_REMAINING = 2.0
 
 
 def main():
+    required_modules = ("traci", "numpy", "skfuzzy", "sumolib")
+    missing = [module for module in required_modules if importlib.util.find_spec(module) is None]
+    if missing:
+        print(
+            "Missing dependencies: "
+            f"{', '.join(missing)}. Install SUMO and run "
+            "`pip install -r requirements.txt` before executing this script."
+        )
+        sys.exit(1)
+
+    from fuzzy_controller import FuzzyExtender
+    import traci
+
     ap = argparse.ArgumentParser()
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--scale", type=float, default=5.0)

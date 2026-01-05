@@ -3,17 +3,17 @@
     <laneAreaDetector
         id="detNS"
         lane="N2C_0"
-        pos="-5"
-        length="5"
+        pos="-50"
+        length="50"
         freq="1"
-        file="results/detNS.xml"/>
+        file="../results/detNS.xml"/>
 
     <!-- Detektor pri stop čiare na vjazde zo západu do uzla C -->
     <laneAreaDetector
         id="detWE"
         lane="W2C_0"
-        pos="-5"
-        length="5"
+        pos="-50"
+        length="50"
         freq="1"
-        file="results/detWE.xml"/>
+        file="../results/detWE.xml"/>
 </additional>
