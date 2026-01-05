@@ -1,0 +1,9 @@
+<nodes>
+  <node id="N" x="0" y="120" type="dead_end"/>
+  <node id="S" x="0" y="-120" type="dead_end"/>
+  <node id="W" x="-120" y="0" type="dead_end"/>
+  <node id="E" x="120" y="0" type="dead_end"/>
+
+  <!-- dôležité: traffic_light -->
+  <node id="C" x="0" y="0" type="traffic_light"/>
+</nodes>

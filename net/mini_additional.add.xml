@@ -1,0 +1,19 @@
+<additional>
+    <!-- Detektor pri stop čiare na vjazde zo severu do uzla C -->
+    <laneAreaDetector
+        id="detNS"
+        lane="N2C_0"
+        pos="-50"
+        length="50"
+        freq="1"
+        file="results/detNS.xml"/>
+
+    <!-- Detektor pri stop čiare na vjazde zo západu do uzla C -->
+    <laneAreaDetector
+        id="detWE"
+        lane="W2C_0"
+        pos="-50"
+        length="50"
+        freq="1"
+        file="results/detWE.xml"/>
+</additional>

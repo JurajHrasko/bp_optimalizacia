@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+  <vType id="car" accel="2.0" decel="4.5" sigma="0.5" length="5" maxSpeed="13.9"/>
+
+  <route id="NS" edges="N2C C2S"/>
+  <route id="WE" edges="W2C C2E"/>
+
+  <flow id="fNS" type="car" route="NS" begin="0" end="2000" vehsPerHour="3600"/>
+  <flow id="fWE" type="car" route="WE" begin="0" end="2000" vehsPerHour="600"/>
+
+</routes>

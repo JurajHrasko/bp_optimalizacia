@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+    <vType id="car" accel="2.6" decel="4.5" sigma="0.5" length="5" maxSpeed="13.9"/>
+
+    <!-- Explicitné route (bez routera), iba cez existujúce hrany -->
+    <route id="r_N_to_S" edges="N2C C2S"/>
+    <route id="r_W_to_E" edges="W2C C2E"/>
+
+    <!-- IMBALANCED: severný smer výrazne silnejší než západný -->
+    <flow id="flow_N_to_S" type="car" route="r_N_to_S"
+          begin="0" end="600" vehsPerHour="2400" departLane="best" departSpeed="max"/>
+
+    <flow id="flow_W_to_E" type="car" route="r_W_to_E"
+          begin="0" end="600" vehsPerHour="600" departLane="best" departSpeed="max"/>
+</routes>

@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+/.venv/
+/venv/
+
+# IDE
+/.idea/
+/.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated simulation outputs (ROOT results only)
+/results/
+*.tripinfo.xml
+*_tripinfo.xml
+
+# SUMO intermediate files (optional)
+*_summary.xml
+*_queue.xml

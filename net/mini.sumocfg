@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <input>
+    <net-file value="mini.net.xml"/>
+    <route-files value="mini_flows_imbalanced.rou.xml"/>
+    <additional-files value="mini_additional.add.xml"/>
+
+
+
+  </input>
+
+  <time>
+    <begin value="0"/>
+    <end value="600"/>
+    <step-length value="1.0"/>
+  </time>
+
+  <output>
+    <tripinfo-output value="../results/mini_tripinfo.xml"/>
+  </output>
+</configuration>
